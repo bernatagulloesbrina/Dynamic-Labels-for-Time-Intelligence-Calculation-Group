@@ -27,7 +27,9 @@ string flagExpression = "UNICHAR( 8204 )";
 
 
 //generates new calc group 
-var calculationGroupTable1 = Model.AddCalculationGroupTable(labelsCalculationGroupName);
+var calculationGroupTable1 = (Model.AddCalculationGroup(labelsCalculationGroupName) as CalculationGroupTable);
+
+calculationGroupTable1.Description = "Calculation group to manipulate data labels"; 
 
 //sees the default precedence number assigned 
 int labelGroupPrecedence = (Model.Tables[labelsCalculationGroupName] as CalculationGroupTable).CalculationGroup.Precedence;
@@ -43,7 +45,8 @@ if(labelGroupPrecedence > timeIntelGroupPrecedence) {
 
 (Model.Tables["Labels"].Columns["Name"] as DataColumn).Name = labelsCalculationGroupColumnName;
 var calculationItem1 = calculationGroupTable1.AddCalculationItem(labelsCalculationItemName);
-calculationItem1.Expression = 
+calculationItem1.Expression = "SELECTEDMEASURE()";
+calculationItem1.FormatStringExpression =
 "SWITCH(" + 
 "\n    TRUE()," + 
 "\n    SELECTEDMEASURENAME()" + 
@@ -51,10 +54,12 @@ calculationItem1.Expression =
 "\n        VAR maxDateInVisual =" + 
 "\n            CALCULATE( MAX( '" + dateTableName + "'[" +dateTableDateColumnName + "] ), ALLSELECTED( '" + dateTableName + "' ) )" + 
 "\n        VAR maxDateInDataPoint =" + 
-"\n            MAX( '" + dateTableName "'[" + dateTableDateColumnName + "] )" + 
+"\n            MAX( '" + dateTableName + "'[" + dateTableDateColumnName + "] )" + 
 "\n        VAR result =" + 
 "\n            IF( maxDateInDataPoint = maxDateInVisual, [" + labelAsValueMeasureName +"] )" + 
 "\n        RETURN" + 
 "\n           " + flagExpression + " & \"\"\"\" & result & \"\"\";\"\"\" & result & \"\"\";\"\"\" & result & \"\"\";\"\"\" & result & \"\"\"\"," + 
 "\n    SELECTEDMEASUREFORMATSTRING()" + 
 "\n)";
+
+calculationItem1.Description = "Show dynamic label as data label of the last point in a line series over a time axis"; 
